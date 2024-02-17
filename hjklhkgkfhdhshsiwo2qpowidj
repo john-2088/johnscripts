@@ -1,0 +1,132 @@
+local Player = game:GetService("Players").LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid : Humanoid = Character.Humanoid
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "Cxrsed",
+    SubTitle = "by john2088",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+})
+
+--Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+}
+
+local AreaToTP = "death counter box"
+
+local Options = Fluent.Options
+
+local KillStealerToggle = nil
+
+function StartM1()
+    local args = {
+        [1] = {
+            ["Goal"] = "LeftClick",
+            ["Mobile"] = true
+        }
+    }
+    
+    Character.Communicate:FireServer(unpack(args))
+    
+    
+end
+
+function StopM1()
+    local args = {
+        [1] = {
+            ["Goal"] = "LeftClickRelease"
+        }
+    }
+    
+    Character.Communicate:FireServer(unpack(args))
+    
+end
+
+function Attack()
+    StartM1()
+    task.wait(0)
+    StopM1()
+end
+
+do
+    local ksb = Tabs.Main:AddToggle("ksb", {Title = "Kill Stealer Bot", Default = false })
+
+    Options.ksb:SetValue(false)
+
+    local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+        Title = "Area to TP",
+        Values = {"death counter box", "atomic slash area"},
+        Multi = false,
+        Default = 1,
+    })
+
+
+    Dropdown:OnChanged(function(Value)
+        AreaToTP = Value
+    end)
+
+    Tabs.Main:AddButton({
+        Title = "TP",
+        Description = "TPs to the selected area",
+        Callback = function()
+            if AreaToTP == "death counter box" then
+                Humanoid.RootPart.Position = Vector3.new(-59.53363037109375, 40.476139068603516, 20344.42578125)
+            elseif AreaToTP == "atomic slash area" then
+                Humanoid.RootPart.Position = Vector3.new(1059.4732666015625, 159.77931213378906, 23007.19921875)
+            end
+        end
+    })
+end
+local guyToKill = nil
+local tpDebounce = false
+game:GetService("RunService").RenderStepped:Connect(function(dt)
+    if Options.ksb.Value then
+        if guyToKill == nil then
+            for i,v in pairs(workspace.Live:GetDescendants()) do
+                if v:IsA("Humanoid") and v.Parent ~= Character then
+                    if v.Health <= 12 and v.Health ~= 0 then
+                        guyToKill = v.Parent
+                    end
+                end
+            end
+            
+        end
+        if guyToKill ~= nil then
+            Humanoid.RootPart.CFrame = CFrame.lookAt(guyToKill:GetPivot().Position + Vector3.new(0,0,-2), guyToKill:GetPivot().Position) 
+            workspace.CurrentCamera.CFrame = CFrame.lookAt(workspace.CurrentCamera.CFrame.Position, guyToKill:GetPivot().Position)
+            PressKey(Enum.KeyCode.One)
+            PressKey(Enum.KeyCode.Two)
+            PressKey(Enum.KeyCode.Three)
+            Attack()
+            
+            if guyToKill.Humanoid.Health == 0 then
+                tpDebounce = false
+                guyToKill = nil
+            end
+        end
+        if not tpDebounce then
+            tpDebounce = true
+            for i,v in pairs(Character:GetDescendants()) do
+                if v:IsA("BodyPosition") then
+                    v:Destroy()
+                end
+            end
+            local bp = Instance.new("BodyPosition")
+            bp.Parent = Humanoid.RootPart
+            bp.Position = Vector3.new(221.82957458496094, 703.4261474609375, 502.6352233886719)
+        end
+    end
+end)
+
+function PressKey(KeyCode : Enum.KeyCode)
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, KeyCode, false, game)
+    task.wait(0)
+    game:GetService("VirtualInputManager"):SendKeyEvent(false, KeyCode, false, game)
+end
