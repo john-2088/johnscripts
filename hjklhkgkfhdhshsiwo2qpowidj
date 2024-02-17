@@ -5,7 +5,7 @@ local Humanoid : Humanoid = Character.Humanoid
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Cxrsed",
+    Title = "Cxrsed TSB",
     SubTitle = "by john2088",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
@@ -121,6 +121,11 @@ game:GetService("RunService").RenderStepped:Connect(function(dt)
             local bp = Instance.new("BodyPosition")
             bp.Parent = Humanoid.RootPart
             bp.Position = Vector3.new(221.82957458496094, 703.4261474609375, 502.6352233886719)
+            local connection = nil
+            connection = bp.ReachedTarget:Connect(function()
+                bp:Destroy()
+                connection:Disconnect()
+            end)
         end
     end
 end)
